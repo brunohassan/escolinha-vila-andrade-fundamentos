@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>To-do list app</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+    <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+
+    <script>
+        var USED_WIDTH = 500
+        var MAX_ZOOMABLE_WIDTH = 700
+
+        var PersonList = []
+        var PersonDataList = []
+
+        // BOX: Container box of home content.
+        var homePage
+
+        // Shortcut names for frequently used objects.
+        var NewPerson
+        var lblSelectedCount
+
+        // First running function.
+        var start = function() {
+
+            // Support all resolutions.
+            page.fit(USED_WIDTH, MAX_ZOOMABLE_WIDTH)
+
+            // Restore saved information.
+            loadPersonDataList()
+
+            // UI: HOME PAGE:
+            // BOX: Container box of home content. Parameters: left, top, width, height.
+            homePage = createBox(0, 0, USED_WIDTH, page.height)
+            that.color = "white"
+            that.center("left")
+
+            // UI: ADD NEW Person:
+            // BOX: Container box for adding new Person.
+            homePage.boxNewPerson = createBox(10, 10, 480, 80)
+            homePage.add(that)
+            that.color = "whitesmoke"
+            that.border = 0
+            that.round = 16
+
+            // TEXTBOX: Where the new Person is written.
+            homePage.boxNewPerson.NewPerson = createTextBox(20, 15, 380)
+            homePage.boxNewPerson.add(that)
+            that.minimal = 1
+            that.color = "transparent"
+            that.inputElement.setAttribute("placeholder", "Add a name")
+                // that.onChange(addPerson)
+                // Set shortcut name.
+            NewPerson = homePage.boxNewPerson.NewPerson
+
+            // LABEL: Add new Person label button.
+            homePage.boxNewPerson.lblAddButton = createLabel()
+            homePage.boxNewPerson.add(that)
+            that.text = "+"
+            that.textAlign = "center"
+            that.color = "#23BCC1BB"
+            that.textColor = "rgba(255, 255, 255, 0.95)"
+            that.height = 50
+            that.width = that.height
+            that.fontSize = 36
+            that.round = 25
+            that.aline(NewPerson, "right", 5)
+            that.onClick(addPerson)
+
+            // UI: Person ITEMS:
+            // BOX: Scrollable container box of Person items.
+            homePage.boxPersonItemList = createBox(10, 100, 480, page.height - 110)
+            homePage.add(that)
+            that.color = "white"
+            that.border = 0
+            that.scrollY = 1
+
+            // UI: DELETE PersonS:
+            // BOX: Container box for delete Persons.
+            homePage.boxDeletePerson = createBox(10, 10, 480, 80)
+            homePage.add(that)
+            that.color = "whitesmoke"
+            that.round = 16
+            that.visible = 0
+
+            // BOX: Background box for delete image.
+            homePage.boxDeletePerson.boxBackground = createBox(0, 0, 55, 55)
+            homePage.boxDeletePerson.add(that)
+            that.color = "#ED6D5230"
+            that.round = 30
+            that.center()
+            that.onClick(removeSelectedPersons)
+
+            // IMAGE: Delete image.
+            homePage.boxDeletePerson.boxBackground.imgDelete = createImage(0, 0, 35, 35)
+            homePage.boxDeletePerson.boxBackground.add(that)
+            that.load("images/todo-app/trash.svg")
+            that.opacity = 0.9
+            that.center()
+
+            // LABEL: Count of selected items on delete image.
+            homePage.boxDeletePerson.lblCount = createLabel()
+            homePage.boxDeletePerson.add(that)
+            that.left = homePage.boxDeletePerson.boxBackground.left + 41
+            that.top = homePage.boxDeletePerson.boxBackground.top - 4
+            that.width = "auto"
+            that.height = "auto"
+            that.color = "white"
+            that.text = "0"
+            that.textColor = "#141414"
+            that.fontSize = 16
+            that.spaceY = 2
+            that.spaceX = 7
+            that.border = 1
+            that.borderColor = "#141414"
+            that.element.style.fontFamily = "opensans-bold"
+            that.round = 50
+            that.opacity = 0.7
+                // Set shortcut name.
+            lblSelectedCount = homePage.boxDeletePerson.lblCount
+
+            // When page reopens, create old records.
+            refreshPersons()
+
+            // Run each time the page size changes.
+            page.onResize(resizeHomePage)
+        }
+
+        var resizeHomePage = function() {
+
+            page.fit(USED_WIDTH, MAX_ZOOMABLE_WIDTH)
+
+            homePage.height = page.height
+            homePage.boxPersonItemList.height = page.height - 110
+            homePage.center("left")
+        }
+
+        var addPerson = function() {
+            if (NewPerson.text != "" && NewPerson.level != "") {
+                addPersonItem(NewPerson)
+                addPersonData(NewPerson)
+
+                NewPerson.text = ""
+            }
+        }
+
+        // Clear all Persons and recreate based on data list.
+        var refreshPersons = function() {
+
+            // Clear all Persons.
+            PersonList = []
+            homePage.boxPersonItemList.html = ""
+
+            for (var i = (PersonDataList.length - 1); i >= 0; i--) {
+                addPersonItem(PersonDataList[i])
+            }
+        }
+
+        // Add new Person item object.
+        var addPersonItem = function(Person) {
+
+            var newItem = createPersonItem(Person)
+            homePage.boxPersonItemList.add(newItem)
+
+            PersonList.unshift(newItem)
+
+            // After the automatic size calculation is complete, reposition the objects.
+            newItem.lblText.onResize(repositionPersons)
+
+            // NOTE: .onResize() has been added for each item of the Persons;
+            // when a Person's text changes size, all Persons are repositioned.
+        }
+
+        // Add new Person data.
+        var addPersonData = function(Person) {
+            PersonDataList.unshift(Person)
+            savePersonDataList()
+        }
+
+        // Create new Person item object.
+        var createPersonItem = function(Person) {
+
+            // BOX: Person item container box.
+            var box = createBox(0, 0, 480, 100)
+            that.color = "white"
+            that.round = 4
+            that.onClick(selectPerson)
+                // Let vertical position change be with motion.
+            that.setMotion("top 0.3s")
+
+            // LABEL: Person.
+            box.lblText = createLabel(50, 10, 410, "auto")
+            box.add(that)
+            that.color = "transparent"
+            that.text = Person.text.concat(':: ', Person.level)
+
+            // BOX: Selection circle.
+            box.boxTick = createBox(15, 15, 20, 20)
+            box.add(that)
+            that.round = 10
+            that.border = 1
+            that.color = "whitesmoke"
+            that.borderColor = "lightgray"
+
+            // Define a variable inside the object.
+            box.isSelected = 0
+
+            makeBasicObject(box)
+            return box
+        }
+
+        var selectPerson = function(clickedPerson) {
+
+            // If item is selected:
+            if (clickedPerson.isSelected) {
+                // Unselect it.
+                clickedPerson.isSelected = 0
+                clickedPerson.boxTick.color = "whitesmoke"
+                clickedPerson.boxTick.border = 1
+                clickedPerson.lblText.textColor = basic.TEXT_COLOR
+                lblSelectedCount.text = num(lblSelectedCount.text) - 1
+
+            } else {
+                // Select it.
+                clickedPerson.isSelected = 1
+                clickedPerson.boxTick.color = "tomato"
+                clickedPerson.boxTick.border = 0
+                clickedPerson.lblText.textColor = "tomato"
+                lblSelectedCount.text = num(lblSelectedCount.text) + 1
+            }
+
+            // Show/hide delete Person box by selected count.
+            if (num(lblSelectedCount.text) > 0) {
+                homePage.boxDeletePerson.visible = 1
+
+            } else {
+                homePage.boxDeletePerson.visible = 0
+            }
+        }
+
+        var removeSelectedPersons = function() {
+
+            var newPersonDataList = []
+            var newPersonList = []
+
+            for (var i = 0; i < PersonList.length; i++) {
+                // If item is selected:
+                if (PersonList[i].isSelected) {
+                    // Remove it.
+                    PersonList[i].remove()
+
+                } else {
+                    // Add it to the new list.
+                    newPersonDataList.push(PersonDataList[i])
+                    newPersonList.push(PersonList[i])
+                }
+            }
+
+            PersonDataList = newPersonDataList
+            PersonList = newPersonList
+            savePersonDataList()
+
+            repositionPersons()
+
+            // Clean and hide delete Person box.
+            lblSelectedCount.text = "0"
+            homePage.boxDeletePerson.visible = 0
+        }
+
+        var savePersonDataList = function() {
+            storage.save("todoApp-PersonDataList", PersonDataList)
+        }
+
+        var loadPersonDataList = function() {
+            PersonDataList = storage.load("todoApp-PersonDataList") || []
+        }
+
+        // Because object positioning uses the coordinate system.
+        var repositionPersons = function() {
+
+            var top = 0
+
+            for (var i = 0; i < PersonList.length; i++) {
+                PersonList[i].top = top
+                PersonList[i].height = PersonList[i].lblText.height + 20
+
+                top += PersonList[i].height
+            }
+        }
+    </script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>

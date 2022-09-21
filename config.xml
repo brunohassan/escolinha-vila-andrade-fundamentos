@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="io.cordova.vila-andrade-fundamentos" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>VilaAndradeFundamentos</name>
+    <description>Sample Apache Cordova App</description>
+    <author email="brunohassan@hotmail.com">
+        Bruno Hassan Mouazzem
+    </author>
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarStyle" value="darkcontent" />
+    <preference name="Orientation" value="portrait" />
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+</widget>
