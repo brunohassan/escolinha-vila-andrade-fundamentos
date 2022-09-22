@@ -51,16 +51,43 @@
             that.color = "whitesmoke"
             that.border = 0
             that.round = 16
+            that.element.style.position = "relative"
 
             // TEXTBOX: Where the new Person is written.
-            homePage.boxNewPerson.NewPerson = createTextBox(20, 15, 380)
+            homePage.boxNewPerson.Name = createTextBox(20, 15, 280)
             homePage.boxNewPerson.add(that)
             that.minimal = 1
             that.color = "transparent"
             that.inputElement.setAttribute("placeholder", "Add a name")
-                // that.onChange(addPerson)
-                // Set shortcut name.
-            NewPerson = homePage.boxNewPerson.NewPerson
+
+            // UI STEPPER: Level
+            // homePage.boxNewPerson.Level = createUIStepper()
+            // homePage.boxNewPerson.add(that)
+            //     // that.right = 10
+            // that.imgDecrease.color = "rgba(0,0,0,0.05)"
+            // that.imgIncrease.color = "rgba(0,0,0,0.05)"
+            // that.center("top")
+            // that.uiStepper.id = "level"
+            // that.uiStepper.setMinNumber(1)
+            // that.uiStepper.setMaxNumber(10)
+            // that.uiStepper.onChange(settingsPage.printStepperNumber)
+            // that.uiStepper.setValue(1)
+
+            homePage.boxNewPerson.Level = createTextBox(20, 15, 90)
+            homePage.boxNewPerson.add(that)
+            that.minimal = 1
+            that.color = "light-grey"
+            that.right = 100
+            that._element.type = "number"
+            that._element.max = "10"
+            that._element.min = "1"
+            that.inputElement.setAttribute("placeholder", "Level")
+
+            // Set shortcut name.
+            NewPerson = {
+                name: homePage.boxNewPerson.Name,
+                level: homePage.boxNewPerson.Level
+            }
 
             // LABEL: Add new Person label button.
             homePage.boxNewPerson.lblAddButton = createLabel()
@@ -73,7 +100,7 @@
             that.width = that.height
             that.fontSize = 36
             that.round = 25
-            that.aline(NewPerson, "right", 5)
+            that.aline(homePage.boxNewPerson.Level, "right", 0)
             that.onClick(addPerson)
 
             // UI: Person ITEMS:
@@ -145,11 +172,12 @@
         }
 
         var addPerson = function() {
-            if (NewPerson.text != "" && NewPerson.level != "") {
+            if (NewPerson.name.text != "" && NewPerson.level.text != "") {
                 addPersonItem(NewPerson)
                 addPersonData(NewPerson)
 
-                NewPerson.text = ""
+                NewPerson.name.text = ""
+                NewPerson.level.text = ""
             }
         }
 
@@ -201,7 +229,7 @@
             box.lblText = createLabel(50, 10, 410, "auto")
             box.add(that)
             that.color = "transparent"
-            that.text = Person.text.concat(':: ', Person.level)
+            that.text = Person.name.text.concat(':: ', Person.level.text)
 
             // BOX: Selection circle.
             box.boxTick = createBox(15, 15, 20, 20)

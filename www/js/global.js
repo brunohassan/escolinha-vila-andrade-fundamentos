@@ -27,13 +27,13 @@ global.settings.updateName = "Ask to me"
 global.settings.isOnlyWhenChargingOn = 1
 global.settings.natificationsIndex = 1
 global.settings.natificationsName = "Friends only"
-global.settings.sleepDelayNumber = 3
 global.settings.soundIndex = 1
 global.settings.soundName = "Mute"
 global.settings.languageIndex = 0
 global.settings.languageName = "English"
 global.settings.objectTypeIndex = 1
 global.settings.objectTypeName = "Minimal"
+global.settings.teamSize = 6
 
 
 var saveGlobal = function() {

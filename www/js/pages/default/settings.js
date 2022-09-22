@@ -144,12 +144,12 @@ settingsPage.createInDefaultViewAndShow = function() {
         that.uiSelectText.onChange(settingsPage.printSelectedName)
         that.uiSelectText.setSelectedIndex(global.settings[that.uiSelectText.id + "Index"])
 
-        // UI STEPPER: Sleep delay.
-        box.sleepDelayGroup = settingsPage.createUIStepperWithTitle("Sleep delay")
+        // UI STEPPER: Team size.
+        box.teamSize = settingsPage.createUIStepperWithTitle("Team Size")
         box.add(that)
-        that.uiStepper.id = "sleepDelayNumber"
+        that.uiStepper.id = "teamSize"
         that.uiStepper.setMinNumber(1)
-        that.uiStepper.setMaxNumber(5)
+        that.uiStepper.setMaxNumber(10)
         that.uiStepper.onChange(settingsPage.printStepperNumber)
         that.uiStepper.setValue(global.settings[that.uiStepper.id])
 
