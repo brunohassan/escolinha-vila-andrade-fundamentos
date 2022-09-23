@@ -316,6 +316,8 @@
             return [teamsCount, teamSize, peopleRotating];
         }
 
+        const popRandomItem = arr => arr.splice((Math.random() * arr.length) | 0, 1);
+
         var sortTeams = function() {
             global.settings.teamSize = 3 //TODO: remove
 
@@ -360,15 +362,15 @@
             for (let i = 0; i < teamsCount; i++) {
                 const newTeamArray = [];
                 for (let j = 0; j < teamsSize; j++) {
-                    newTeamArray.push(slicedArray[j][i]);
+                    newTeamArray.push(popRandomItem(slicedArray[j]));
+                }
+
+                if (peopleRotatingArray.length > 0) {
+                    newTeamArray.push(popRandomItem(peopleRotatingArray));
                 }
                 console.log("novo time: ", newTeamArray);
                 teamsList.push(newTeamArray);
             }
-
-            // if (peopleRotatingCount > 0) {
-            //     console.log("Not implemented");
-            // }
 
             console.log("Lista de times:", teamsList)
         }
