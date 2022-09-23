@@ -335,8 +335,6 @@
             // Variables declaration
             var peopleCount = peopleList.length;
 
-            console.log("qnt pessoas", peopleCount);
-            console.log("qnt times / pessoas por time / rodando", defineTeamsConfiguration(peopleCount));
             var teamConfigArray = defineTeamsConfiguration(peopleCount);
             var teamsCount = teamConfigArray[0];
             var teamsSize = teamConfigArray[1];
@@ -347,7 +345,6 @@
 
             // Slice last n people from the list to rotate into teams (peopleRotating)
             peopleRotatingArray = peopleList.splice(0, peopleRotatingCount);
-            console.log(peopleList);
 
             var teamsList = [];
 
@@ -368,11 +365,10 @@
                 if (peopleRotatingArray.length > 0) {
                     newTeamArray.push(popRandomItem(peopleRotatingArray));
                 }
-                console.log("novo time: ", newTeamArray);
                 teamsList.push(newTeamArray);
             }
 
-            console.log("Lista de times:", teamsList)
+            // call modal
         }
 
         var removeSelectedPersons = function() {
