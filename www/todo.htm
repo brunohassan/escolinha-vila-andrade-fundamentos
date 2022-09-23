@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" type="text/css" href="library/basic.min.css">
     <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/global.js" type="text/javascript" charset="utf-8"></script>
 
     <style>
         body {
@@ -60,7 +61,7 @@
             that.color = "transparent"
             that.inputElement.setAttribute("placeholder", "Add a name")
 
-            // UI STEPPER: Level
+            // UI STEPPER: Level // TODO
             // homePage.boxNewPerson.Level = createUIStepper()
             // homePage.boxNewPerson.add(that)
             //     // that.right = 10
@@ -78,6 +79,7 @@
             that.minimal = 1
             that.color = "light-grey"
             that.right = 100
+            that.round = 13
             that._element.type = "number"
             that._element.max = "10"
             that._element.min = "1"
@@ -110,6 +112,24 @@
             that.color = "white"
             that.border = 0
             that.scrollY = 1
+
+            // UI: Sort Teams:
+            // BOX: Container box for dorting teams.
+            homePage.boxSortTeams = createBox(10, 340, 55, 55)
+            homePage.add(that)
+            that.color = "transparent"
+            that.color = "#23BCC1BB"
+            that.round = 30
+            that.center("left")
+            that.right = 17.5
+            that.onClick(sortTeams)
+
+            // IMAGE: Team image.
+            homePage.boxSortTeams.imgSortTeam = createImage(0, 0, 35, 35)
+            homePage.boxSortTeams.add(that)
+            that.load("images/todo-app/volleyball2.svg")
+            that.opacity = 0.9
+            that.center()
 
             // UI: DELETE PersonS:
             // BOX: Container box for delete Persons.
@@ -211,7 +231,7 @@
         // Add new Person data.
         var addPersonData = function(Person) {
             PersonDataList.unshift(Person)
-            savePersonDataList()
+                // TODO    // savePersonDataList()
         }
 
         // Create new Person item object.
@@ -273,6 +293,84 @@
             } else {
                 homePage.boxDeletePerson.visible = 0
             }
+        }
+
+        var defineTeamsConfiguration = function(peopleCount) {
+            global.settings.teamSize = 3 //TODO: remove
+
+            var teamSize = global.settings.teamSize;
+            var teamsCount = Math.trunc(peopleCount / teamSize);
+
+            var peopleLeftOut = peopleCount % global.settings.teamSize;
+            var peopleRotating = 0;
+
+            // Checking if there will be people rotating into team
+            if (peopleLeftOut <= teamsCount) {
+                peopleRotating = peopleLeftOut;
+                peopleLeftOut = 0;
+            } else {
+                teamsCount++;
+                teamSize = Math.trunc(peopleCount / teamSize);
+            }
+
+            return [teamsCount, teamSize, peopleRotating];
+        }
+
+        var sortTeams = function() {
+            global.settings.teamSize = 3 //TODO: remove
+
+            // Cleaning data
+            var peopleList = PersonList.map(x => {
+                return {
+                    name: x.lblText.text.split(":: ")[0],
+                    level: x.lblText.text.split(":: ")[1]
+                }
+            });
+
+            if (peopleList.length < 4)
+                return
+
+            // Variables declaration
+            var peopleCount = peopleList.length;
+
+            console.log("qnt pessoas", peopleCount);
+            console.log("qnt times / pessoas por time / rodando", defineTeamsConfiguration(peopleCount));
+            var teamConfigArray = defineTeamsConfiguration(peopleCount);
+            var teamsCount = teamConfigArray[0];
+            var teamsSize = teamConfigArray[1];
+            var peopleRotatingCount = teamConfigArray[2];
+
+            // Sort (not necessary since js do it automaticaly)
+            peopleList.sort((a, b) => a.level - b.level);
+
+            // Slice last n people from the list to rotate into teams (peopleRotating)
+            peopleRotatingArray = peopleList.splice(0, peopleRotatingCount);
+            console.log(peopleList);
+
+            var teamsList = [];
+
+            // Slice chunks to separate into teams
+            // not the best way, but the one that managed to work
+            var slicedArray = []
+            for (let i = 0; i < (peopleCount - peopleRotatingCount); i += teamsCount) {
+                const chunk = peopleList.slice(i, i + teamsCount);
+                slicedArray.push(chunk);
+            }
+
+            for (let i = 0; i < teamsCount; i++) {
+                const newTeamArray = [];
+                for (let j = 0; j < teamsSize; j++) {
+                    newTeamArray.push(slicedArray[j][i]);
+                }
+                console.log("novo time: ", newTeamArray);
+                teamsList.push(newTeamArray);
+            }
+
+            // if (peopleRotatingCount > 0) {
+            //     console.log("Not implemented");
+            // }
+
+            console.log("Lista de times:", teamsList)
         }
 
         var removeSelectedPersons = function() {
