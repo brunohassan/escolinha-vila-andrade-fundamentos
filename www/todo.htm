@@ -29,8 +29,6 @@
         // Shortcut names for frequently used objects.
         var lblSelectedCount
 
-        var teamsSize = global.settings.teamSize;
-
         // First running function.
         var start = function() {
             // Support all resolutions.
@@ -284,6 +282,8 @@
         }
 
         var defineTeamsConfiguration = function(peopleCount) {
+            loadGlobal();
+            var teamsSize = global.settings.teamSize;
             var teamsCount = Math.trunc(peopleCount / teamsSize);
 
             var peopleLeftOut = peopleCount % teamsSize;
@@ -321,6 +321,7 @@
             var peopleCount = peopleList.length;
             var teamConfigArray = defineTeamsConfiguration(peopleCount);
             var teamsCount = teamConfigArray[0];
+            var teamsSize = teamConfigArray[1];
             var peopleRotatingCount = teamConfigArray[2];
 
             // Sort (not necessary since js do it automaticaly)
