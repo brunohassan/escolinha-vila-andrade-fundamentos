@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-    <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+    <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
     <style>
         body {
@@ -30,9 +30,9 @@
         var lblSelectedCount
 
         var teamsSize = global.settings.teamSize;
+
         // First running function.
         var start = function() {
-            var teamsSize = global.settings.teamSize;
             // Support all resolutions.
             page.fit(USED_WIDTH, MAX_ZOOMABLE_WIDTH)
 
@@ -96,13 +96,13 @@
 
             // UI: Sort Teams:
             // BOX: Container box for dorting teams.
-            homePage.boxSortTeams = createBox(10, 340, 55, 55)
+            homePage.boxSortTeams = createBox(10, 325, 55, 55)
             homePage.add(that)
             that.color = "transparent"
             that.color = "#23BCC1BB"
             that.round = 30
             that.center("left")
-            that.right = 17.5
+            that.right = 20
             that.onClick(displayTeams)
 
             // IMAGE: Team image.
@@ -162,6 +162,8 @@
             // Run each time the page size changes.
             page.onResize(resizeHomePage)
         }
+
+        const popRandomItem = arr => arr.splice((Math.random() * arr.length) | 0, 1)[0];
 
         var resizeHomePage = function() {
 
@@ -282,8 +284,6 @@
         }
 
         var defineTeamsConfiguration = function(peopleCount) {
-            var teamsSize = global.settings.teamSize;
-            console.log(">>>>>>>>", teamsSize)
             var teamsCount = Math.trunc(peopleCount / teamsSize);
 
             var peopleLeftOut = peopleCount % teamsSize;
@@ -295,15 +295,14 @@
                 peopleLeftOut = 0;
             } else {
                 teamsCount++;
-                teamsSize = Math.trunc(peopleCount / teamsSize);
+                teamsSize = Math.trunc(peopleCount / teamsCount);
+                peopleRotating = peopleCount - teamsCount * teamsSize;
             }
 
-            console.log("Teams: ", teamsCount, "\nSize: ", teamsSize);
+            console.log("People: ", peopleCount, "\nTeams: ", teamsCount, "\nSize: ", teamsSize);
             return [teamsCount, teamsSize, peopleRotating];
         }
 
-
-        const popRandomItem = arr => arr.splice((Math.random() * arr.length) | 0, 1)[0];
         var sortTeams = function() {
             // Cleaning data
             var peopleList = PersonList.map(x => {
@@ -313,8 +312,10 @@
                 }
             });
 
-            if (peopleList.length < 4)
+            if (peopleList.length < 8) {
+                alert("Insira pelo menos 8 jogadores, por favor");
                 return
+            }
 
             // Variables declaration
             var peopleCount = peopleList.length;
@@ -350,7 +351,6 @@
                 teamsList.push(newTeamArray);
             }
 
-            console.log(teamsList);
             return [teamsCount, teamsSize, teamsList];
         }
 
@@ -360,61 +360,81 @@
             var teamsCount = teamsSorted[0];
             var teamsList = teamsSorted[2];
 
+
             // UI: DISPLAY Teams:
             // BOX: Container box to display teams
-            displayPage = createBox(0, 0, USED_WIDTH, page.height)
-            that.color = "white"
-            that.center("left")
+            displayPage = createBox(0, 0, USED_WIDTH, page.height);
+            that.color = "white";
+            that.center("left");
+            that.visible = 0;
 
-            displayPage.boxDisplayTeams = createBox(10, 10, 480, 380)
-            displayPage.add(that)
-            that.color = "whitesmoke"
-            that.round = 30
-
-            homePage.visible = 0;
+            displayPage.boxDisplayTeams = createBox(10, 10, 480, 380);
+            displayPage.add(that);
+            that.color = "whitesmoke";
+            that.round = 30;
 
             const possibleColors = ["lightblue", "lightgreen", "lightyellow", "lightpink", "wheat", "beige", "bisque", "khaki", "lavander", "thistle", "paleturquoise", "palegreen"];
             // BOX: Container box for adding new Person.
             displayPage.boxDisplayTeams.Teams = []
             for (let i = 0; i < teamsCount; i++) {
                 newTeam = createBox(15, 15, ((480 - 2 * 5 - (teamsCount - 1) * 5) / teamsCount), 370)
-                displayPage.boxDisplayTeams.Teams.push(newTeam)
-                displayPage.add(that)
-                that.color = popRandomItem(possibleColors)
-                that.border = 0
-                that.round = 30
-                that.element.style["margin-right"] = "5px"
-                that.element.style.position = "relative"
-                that.element.style.display = "inline-block"
+                displayPage.boxDisplayTeams.Teams.push(newTeam);
+                displayPage.add(that);
+                that.color = popRandomItem(possibleColors);
+                that.border = 0;
+                that.round = 30;
+                that.element.style["margin-right"] = "5px";
+                that.element.style.position = "relative";
+                that.element.style.display = "inline-block";
 
                 // LABEL: Title text.
-                displayPage.boxDisplayTeams.Teams[i].lblTitle = createLabel(0, 25, displayPage.boxDisplayTeams.Teams[i].width, 30)
-                displayPage.boxDisplayTeams.Teams[i].add(that)
-                that.text = "Time " + (i + 1)
-                that.textAlign = "center"
-                that.textColor = "rgba(40, 40, 40, 0.9)"
-                that.element.style.fontFamily = "monospace"
-                that.element.style.fontWeight = "600"
+                displayPage.boxDisplayTeams.Teams[i].lblTitle = createLabel(0, 25, displayPage.boxDisplayTeams.Teams[i].width, 50)
+                displayPage.boxDisplayTeams.Teams[i].add(that);
+                that.text = "Time" + (i + 1) + "\n(" + teamsList[i].length + ")";
+                that.textAlign = "center";
+                that.textColor = "rgba(40, 40, 40, 0.9)";
+                that.element.style.fontFamily = "monospace";
+                that.element.style.fontWeight = "600";
 
                 displayPage.boxDisplayTeams.Teams[i].Player = []
-                for (let j = 0; j < teamsSize; j++) {
+                for (let j = 0; j < teamsList[i].length; j++) {
                     newPlayer = createBox(0, 100 + 25 * j, displayPage.boxDisplayTeams.Teams[i].width, 30)
-                    displayPage.boxDisplayTeams.Teams[i].Player.push(newPlayer)
-                    displayPage.boxDisplayTeams.Teams[i].add(that)
-                    that.text = teamsList[i][j].name
-                    that.center("left")
-                    that.color = "transparent"
-                    that.fontSize = 20
-                    that.textAlign = "center"
-                    that.textColor = "rgba(50, 50, 50, 0.9)"
-                    that.element.style.fontFamily = "monospace"
+                    displayPage.boxDisplayTeams.Teams[i].Player.push(newPlayer);
+                    displayPage.boxDisplayTeams.Teams[i].add(that);
+                    that.text = teamsList[i][j].name;
+                    that.center("left");
+                    that.color = "transparent";
+                    that.fontSize = 20;
+                    that.textAlign = "center";
+                    that.textColor = "rgba(50, 50, 50, 0.9)";
+                    that.element.style.fontFamily = "monospace";
                 }
             }
+            // UI: Hide:
+            // BOX: Container box for dorting teams.
+            displayPage.boxDisplayTeams.boxHideTeams = createBox(10, 325, 55, 55)
+            displayPage.add(that)
+            that.color = "lightsalmon"
+            that.round = 30
+            that.center("left")
+            that.right = 20
+            that.onClick(hideTeams)
+
+            // IMAGE: Team image.
+            displayPage.boxDisplayTeams.boxHideTeams.imgSortTeam = createImage(0, 0, 35, 35)
+            displayPage.boxDisplayTeams.boxHideTeams.add(that)
+            that.load("images/todo-app/return.svg")
+            that.opacity = 0.8
+            that.center()
+
+            displayPage.visible = 1;
+            homePage.visible = 0;
         }
 
         var hideTeams = function() {
             homePage.visible = 1;
-            displayPage.boxDisplayTeams.visible = 0;
+            displayPage.visible = 0;
+            displayPage.remove()
         }
 
         var removeSelectedPersons = function() {
