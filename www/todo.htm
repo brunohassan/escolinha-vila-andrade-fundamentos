@@ -17,8 +17,6 @@
     </style>
 
     <script>
-        global.settings.teamSize = 3 //TODO: remove
-
         var USED_WIDTH = 500
         var MAX_ZOOMABLE_WIDTH = 700
 
@@ -29,12 +27,12 @@
         var homePage
 
         // Shortcut names for frequently used objects.
-        var NewPerson
         var lblSelectedCount
 
+        var teamsSize = global.settings.teamSize;
         // First running function.
         var start = function() {
-
+            var teamsSize = global.settings.teamSize;
             // Support all resolutions.
             page.fit(USED_WIDTH, MAX_ZOOMABLE_WIDTH)
 
@@ -63,19 +61,6 @@
             that.color = "transparent"
             that.inputElement.setAttribute("placeholder", "Add a name")
 
-            // UI STEPPER: Level // TODO
-            // homePage.boxNewPerson.Level = createUIStepper()
-            // homePage.boxNewPerson.add(that)
-            //     // that.right = 10
-            // that.imgDecrease.color = "rgba(0,0,0,0.05)"
-            // that.imgIncrease.color = "rgba(0,0,0,0.05)"
-            // that.center("top")
-            // that.uiStepper.id = "level"
-            // that.uiStepper.setMinNumber(1)
-            // that.uiStepper.setMaxNumber(10)
-            // that.uiStepper.onChange(settingsPage.printStepperNumber)
-            // that.uiStepper.setValue(1)
-
             homePage.boxNewPerson.Level = createTextBox(20, 15, 90)
             homePage.boxNewPerson.add(that)
             that.minimal = 1
@@ -86,12 +71,6 @@
             that._element.max = "10"
             that._element.min = "1"
             that.inputElement.setAttribute("placeholder", "Level")
-
-            // Set shortcut name.
-            NewPerson = {
-                name: homePage.boxNewPerson.Name,
-                level: homePage.boxNewPerson.Level
-            }
 
             // LABEL: Add new Person label button.
             homePage.boxNewPerson.lblAddButton = createLabel()
@@ -194,12 +173,17 @@
         }
 
         var addPerson = function() {
-            if (NewPerson.name.text != "" && NewPerson.level.text != "") {
-                addPersonItem(NewPerson)
-                addPersonData(NewPerson)
 
-                NewPerson.name.text = ""
-                NewPerson.level.text = ""
+            if (homePage.boxNewPerson.Name.text != "" && homePage.boxNewPerson.Level.text != "") {
+                const newPerson = {
+                    name: homePage.boxNewPerson.Name.text,
+                    level: homePage.boxNewPerson.Level.text
+                }
+                addPersonItem(newPerson)
+                addPersonData(newPerson)
+
+                homePage.boxNewPerson.Name.text = "";
+                homePage.boxNewPerson.Level.text = "";
             }
         }
 
@@ -233,7 +217,7 @@
         // Add new Person data.
         var addPersonData = function(Person) {
             PersonDataList.unshift(Person)
-                // TODO    // savePersonDataList()
+            savePersonDataList()
         }
 
         // Create new Person item object.
@@ -251,7 +235,7 @@
             box.lblText = createLabel(50, 10, 410, "auto")
             box.add(that)
             that.color = "transparent"
-            that.text = Person.name.text.concat(':: ', Person.level.text)
+            that.text = Person.name.concat(':: ', Person.level)
 
             // BOX: Selection circle.
             box.boxTick = createBox(15, 15, 20, 20)
@@ -298,10 +282,11 @@
         }
 
         var defineTeamsConfiguration = function(peopleCount) {
-            var teamSize = global.settings.teamSize;
-            var teamsCount = Math.trunc(peopleCount / teamSize);
+            var teamsSize = global.settings.teamSize;
+            console.log(">>>>>>>>", teamsSize)
+            var teamsCount = Math.trunc(peopleCount / teamsSize);
 
-            var peopleLeftOut = peopleCount % global.settings.teamSize;
+            var peopleLeftOut = peopleCount % teamsSize;
             var peopleRotating = 0;
 
             // Checking if there will be people rotating into team
@@ -310,11 +295,11 @@
                 peopleLeftOut = 0;
             } else {
                 teamsCount++;
-                teamSize = Math.trunc(peopleCount / teamSize);
+                teamsSize = Math.trunc(peopleCount / teamsSize);
             }
 
-            console.log("Teams: ", teamsCount, "\nSize: ", teamSize);
-            return [teamsCount, teamSize, peopleRotating];
+            console.log("Teams: ", teamsCount, "\nSize: ", teamsSize);
+            return [teamsCount, teamsSize, peopleRotating];
         }
 
 
@@ -333,10 +318,8 @@
 
             // Variables declaration
             var peopleCount = peopleList.length;
-
             var teamConfigArray = defineTeamsConfiguration(peopleCount);
             var teamsCount = teamConfigArray[0];
-            var teamsSize = teamConfigArray[1];
             var peopleRotatingCount = teamConfigArray[2];
 
             // Sort (not necessary since js do it automaticaly)
@@ -375,7 +358,6 @@
             var teamsSorted = sortTeams();
 
             var teamsCount = teamsSorted[0];
-            var teamsSize = teamsSorted[1];
             var teamsList = teamsSorted[2];
 
             // UI: DISPLAY Teams:
@@ -391,7 +373,7 @@
 
             homePage.visible = 0;
 
-            var possibleColors = ["lightblue", "lightgreen", "lightyellow", "lightpink", "wheat", "beige", "bisque", "khaki", "lavander", "thistle", "paleturquoise", "palegreen"];
+            const possibleColors = ["lightblue", "lightgreen", "lightyellow", "lightpink", "wheat", "beige", "bisque", "khaki", "lavander", "thistle", "paleturquoise", "palegreen"];
             // BOX: Container box for adding new Person.
             displayPage.boxDisplayTeams.Teams = []
             for (let i = 0; i < teamsCount; i++) {
@@ -405,7 +387,7 @@
                 that.element.style.position = "relative"
                 that.element.style.display = "inline-block"
 
-                // LABEL: My documents title text.
+                // LABEL: Title text.
                 displayPage.boxDisplayTeams.Teams[i].lblTitle = createLabel(0, 25, displayPage.boxDisplayTeams.Teams[i].width, 30)
                 displayPage.boxDisplayTeams.Teams[i].add(that)
                 that.text = "Time " + (i + 1)
@@ -416,7 +398,7 @@
 
                 displayPage.boxDisplayTeams.Teams[i].Player = []
                 for (let j = 0; j < teamsSize; j++) {
-                    newPlayer = createBox(0, 80 + 25 * j, displayPage.boxDisplayTeams.Teams[i].width, 30)
+                    newPlayer = createBox(0, 100 + 25 * j, displayPage.boxDisplayTeams.Teams[i].width, 30)
                     displayPage.boxDisplayTeams.Teams[i].Player.push(newPlayer)
                     displayPage.boxDisplayTeams.Teams[i].add(that)
                     that.text = teamsList[i][j].name
@@ -455,7 +437,7 @@
 
             PersonDataList = newPersonDataList
             PersonList = newPersonList
-                // savePersonDataList()
+            savePersonDataList()
 
             repositionPersons()
 
