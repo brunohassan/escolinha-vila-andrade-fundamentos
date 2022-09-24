@@ -17,6 +17,8 @@
     </style>
 
     <script>
+        global.settings.teamSize = 3 //TODO: remove
+
         var USED_WIDTH = 500
         var MAX_ZOOMABLE_WIDTH = 700
 
@@ -122,7 +124,7 @@
             that.round = 30
             that.center("left")
             that.right = 17.5
-            that.onClick(sortTeams)
+            that.onClick(displayTeams)
 
             // IMAGE: Team image.
             homePage.boxSortTeams.imgSortTeam = createImage(0, 0, 35, 35)
@@ -131,7 +133,7 @@
             that.opacity = 0.9
             that.center()
 
-            // UI: DELETE PersonS:
+            // UI: DELETE Person:
             // BOX: Container box for delete Persons.
             homePage.boxDeletePerson = createBox(10, 10, 480, 80)
             homePage.add(that)
@@ -296,8 +298,6 @@
         }
 
         var defineTeamsConfiguration = function(peopleCount) {
-            global.settings.teamSize = 3 //TODO: remove
-
             var teamSize = global.settings.teamSize;
             var teamsCount = Math.trunc(peopleCount / teamSize);
 
@@ -313,14 +313,13 @@
                 teamSize = Math.trunc(peopleCount / teamSize);
             }
 
+            console.log("Teams: ", teamsCount, "\nSize: ", teamSize);
             return [teamsCount, teamSize, peopleRotating];
         }
 
-        const popRandomItem = arr => arr.splice((Math.random() * arr.length) | 0, 1);
 
+        const popRandomItem = arr => arr.splice((Math.random() * arr.length) | 0, 1)[0];
         var sortTeams = function() {
-            global.settings.teamSize = 3 //TODO: remove
-
             // Cleaning data
             var peopleList = PersonList.map(x => {
                 return {
@@ -368,7 +367,72 @@
                 teamsList.push(newTeamArray);
             }
 
-            // call modal
+            console.log(teamsList);
+            return [teamsCount, teamsSize, teamsList];
+        }
+
+        var displayTeams = function() {
+            var teamsSorted = sortTeams();
+
+            var teamsCount = teamsSorted[0];
+            var teamsSize = teamsSorted[1];
+            var teamsList = teamsSorted[2];
+
+            // UI: DISPLAY Teams:
+            // BOX: Container box to display teams
+            displayPage = createBox(0, 0, USED_WIDTH, page.height)
+            that.color = "white"
+            that.center("left")
+
+            displayPage.boxDisplayTeams = createBox(10, 10, 480, 380)
+            displayPage.add(that)
+            that.color = "whitesmoke"
+            that.round = 30
+
+            homePage.visible = 0;
+
+            var possibleColors = ["lightblue", "lightgreen", "lightyellow", "lightpink", "wheat", "beige", "bisque", "khaki", "lavander", "thistle", "paleturquoise", "palegreen"];
+            // BOX: Container box for adding new Person.
+            displayPage.boxDisplayTeams.Teams = []
+            for (let i = 0; i < teamsCount; i++) {
+                newTeam = createBox(15, 15, ((480 - 2 * 5 - (teamsCount - 1) * 5) / teamsCount), 370)
+                displayPage.boxDisplayTeams.Teams.push(newTeam)
+                displayPage.add(that)
+                that.color = popRandomItem(possibleColors)
+                that.border = 0
+                that.round = 30
+                that.element.style["margin-right"] = "5px"
+                that.element.style.position = "relative"
+                that.element.style.display = "inline-block"
+
+                // LABEL: My documents title text.
+                displayPage.boxDisplayTeams.Teams[i].lblTitle = createLabel(0, 25, displayPage.boxDisplayTeams.Teams[i].width, 30)
+                displayPage.boxDisplayTeams.Teams[i].add(that)
+                that.text = "Time " + (i + 1)
+                that.textAlign = "center"
+                that.textColor = "rgba(40, 40, 40, 0.9)"
+                that.element.style.fontFamily = "monospace"
+                that.element.style.fontWeight = "600"
+
+                displayPage.boxDisplayTeams.Teams[i].Player = []
+                for (let j = 0; j < teamsSize; j++) {
+                    newPlayer = createBox(0, 80 + 25 * j, displayPage.boxDisplayTeams.Teams[i].width, 30)
+                    displayPage.boxDisplayTeams.Teams[i].Player.push(newPlayer)
+                    displayPage.boxDisplayTeams.Teams[i].add(that)
+                    that.text = teamsList[i][j].name
+                    that.center("left")
+                    that.color = "transparent"
+                    that.fontSize = 20
+                    that.textAlign = "center"
+                    that.textColor = "rgba(50, 50, 50, 0.9)"
+                    that.element.style.fontFamily = "monospace"
+                }
+            }
+        }
+
+        var hideTeams = function() {
+            homePage.visible = 1;
+            displayPage.boxDisplayTeams.visible = 0;
         }
 
         var removeSelectedPersons = function() {
@@ -391,7 +455,7 @@
 
             PersonDataList = newPersonDataList
             PersonList = newPersonList
-            savePersonDataList()
+                // savePersonDataList()
 
             repositionPersons()
 
