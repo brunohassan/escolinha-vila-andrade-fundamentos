@@ -94,7 +94,7 @@
 
             // UI: Sort Teams:
             // BOX: Container box for dorting teams.
-            homePage.boxSortTeams = createBox(10, 325, 55, 55)
+            homePage.boxSortTeams = createBox(10, page.height - 90, 55, 55)
             homePage.add(that)
             that.color = "transparent"
             that.color = "#23BCC1BB"
@@ -369,7 +369,7 @@
             that.center("left");
             that.visible = 0;
 
-            displayPage.boxDisplayTeams = createBox(10, 10, 480, 380);
+            displayPage.boxDisplayTeams = createBox(10, 10, 480, page.height - 110);
             displayPage.add(that);
             that.color = "whitesmoke";
             that.round = 30;
@@ -378,7 +378,7 @@
             // BOX: Container box for adding new Person.
             displayPage.boxDisplayTeams.Teams = []
             for (let i = 0; i < teamsCount; i++) {
-                newTeam = createBox(15, 15, ((480 - 2 * 5 - (teamsCount - 1) * 5) / teamsCount), 370)
+                newTeam = createBox(15, 15, ((480 - 2 * 5 - (teamsCount - 1) * 5) / teamsCount), page.height - 110 - 10)
                 displayPage.boxDisplayTeams.Teams.push(newTeam);
                 displayPage.add(that);
                 that.color = popRandomItem(possibleColors);
@@ -413,7 +413,7 @@
             }
             // UI: Hide:
             // BOX: Container box for dorting teams.
-            displayPage.boxDisplayTeams.boxHideTeams = createBox(10, 325, 55, 55)
+            displayPage.boxDisplayTeams.boxHideTeams = createBox(10, page.height - 90, 55, 55)
             displayPage.add(that)
             that.color = "lightsalmon"
             that.round = 30
