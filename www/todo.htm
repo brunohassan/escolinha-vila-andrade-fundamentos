@@ -364,21 +364,33 @@
 
             // UI: DISPLAY Teams:
             // BOX: Container box to display teams
-            displayPage = createBox(0, 0, USED_WIDTH, page.height);
+            displayPage = createBox(0, 0, USED_WIDTH, page.height - 5);
             that.color = "white";
             that.center("left");
             that.visible = 0;
+            that.scrollY = 0;
 
-            displayPage.boxDisplayTeams = createBox(10, 10, 480, page.height - 110);
+            displayPage.boxDisplayTeams = createBox(10, 10, 480, page.height);
             displayPage.add(that);
-            that.color = "whitesmoke";
+            that.color = "white";
             that.round = 30;
 
             const possibleColors = ["lightblue", "lightgreen", "lightyellow", "lightpink", "wheat", "beige", "bisque", "khaki", "lavander", "thistle", "paleturquoise", "palegreen"];
             // BOX: Container box for adding new Person.
             displayPage.boxDisplayTeams.Teams = []
             for (let i = 0; i < teamsCount; i++) {
-                newTeam = createBox(15, 15, ((480 - 2 * 5 - (teamsCount - 1) * 5) / teamsCount), page.height - 110 - 10)
+                var teamWidth = ((480 - 2 * 5 - (teamsCount - 1) * 5) / teamsCount);
+                var teamHeight = page.height - 110 - 10;
+                if (page.height > 600) {
+                    var numColumns = Math.ceil(teamsCount / 2);
+                    teamWidth = (displayPage.boxDisplayTeams.width - 30) / 2;
+                    teamHeight = (page.height - 110 - (5 * numColumns)) / numColumns;
+                    if (teamHeight < (displayPage.boxDisplayTeams.height) / 3) {
+                        teamHeight = (page.height - 110 - (5 * (numColumns - 1))) / (numColumns - 1) - 50;
+                        displayPage.scrollY = 1;
+                    }
+                }
+                newTeam = createBox(15, 15, teamWidth, teamHeight)
                 displayPage.boxDisplayTeams.Teams.push(newTeam);
                 displayPage.add(that);
                 that.color = popRandomItem(possibleColors);
@@ -413,8 +425,7 @@
             }
             // UI: Hide:
             // BOX: Container box for dorting teams.
-            displayPage.boxDisplayTeams.boxHideTeams = createBox(10, page.height - 90, 70, 70)
-            displayPage.add(that)
+            boxHideTeams = createBox(10, page.height - 90, 70, 70)
             that.color = "lightsalmon"
             that.round = 50
             that.center("left")
@@ -422,8 +433,8 @@
             that.onClick(hideTeams)
 
             // IMAGE: Team image.
-            displayPage.boxDisplayTeams.boxHideTeams.imgSortTeam = createImage(0, 0, 35, 35)
-            displayPage.boxDisplayTeams.boxHideTeams.add(that)
+            boxHideTeams.imgSortTeam = createImage(0, 0, 35, 35)
+            boxHideTeams.add(that)
             that.load("images/todo-app/return.svg")
             that.opacity = 0.8
             that.center()
@@ -435,7 +446,9 @@
         var hideTeams = function() {
             homePage.visible = 1;
             displayPage.visible = 0;
+            boxHideTeams.visible = 0;
             displayPage.remove()
+            boxHideTeams.remove()
         }
 
         var removeSelectedPersons = function() {
